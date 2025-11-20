@@ -1,35 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import JSZip from "jszip";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [generatedUrl, setGeneratedUrl] = useState("");
+
+  useEffect(() => {
+    const hash = location.hash;
+    if (!hash.startsWith("#data=")) return;
+
+    const base64 = decodeURIComponent(hash.substring(6));
+    const binary = atob(base64);
+    const bytes = new Uint8Array([...binary].map(c => c.charCodeAt(0)));
+
+    (async () => {
+      const zip = await JSZip.loadAsync(bytes);
+
+      // 여기서 리팩 작업 넣으면 됨
+      // ex) pack.mcmeta 수정, 파일 추가/삭제 등등
+
+      const newZipBlob = await zip.generateAsync({ type: "blob" });
+
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(newZipBlob);
+      a.download = "repacked.zip";
+      a.click();
+    })();
+  }, []);
+
+  const handleUpload = async (file: File) => {
+    const base64 = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(",")[1]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    const url = `${location.origin}${location.pathname}#data=${encodeURIComponent(base64)}`;
+    setGeneratedUrl(url);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="container">
+      <h1 className="title">Resource Pack Director</h1>
 
-export default App
+      <div>
+        <label className="label">Upload ZIP</label>
+        <input
+          type="file"
+          accept=".zip"
+          className="fileInput"
+          onChange={(e) => {
+            if (e.target.files && e.target.files[0]) {
+              handleUpload(e.target.files[0]);
+            }
+          }}
+        />
+      </div>
+
+      {generatedUrl && (
+        <div>
+          <label className="label">Generated URL</label>
+          <textarea className="urlBox" readOnly value={generatedUrl} />
+        </div>
+      )}
+    </div>
+  );
+}
