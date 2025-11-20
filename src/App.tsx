@@ -5,27 +5,24 @@ import "./App.css";
 export default function App() {
   const [generatedUrl, setGeneratedUrl] = useState("");
 
+  // API 모드 감지 및 다운로드
   useEffect(() => {
     const hash = location.hash;
-    if (!hash.startsWith("#data=")) return;
+    if (hash.startsWith("#data=")) {
+      const base64 = decodeURIComponent(hash.substring(6));
+      const binary = atob(base64);
+      const bytes = new Uint8Array([...binary].map(c => c.charCodeAt(0)));
 
-    const base64 = decodeURIComponent(hash.substring(6));
-    const binary = atob(base64);
-    const bytes = new Uint8Array([...binary].map(c => c.charCodeAt(0)));
-
-    (async () => {
-      const zip = await JSZip.loadAsync(bytes);
-
-      // 여기서 리팩 작업 넣으면 됨
-      // ex) pack.mcmeta 수정, 파일 추가/삭제 등등
-
-      const newZipBlob = await zip.generateAsync({ type: "blob" });
-
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(newZipBlob);
-      a.download = "repacked.zip";
-      a.click();
-    })();
+      (async () => {
+        const zip = await JSZip.loadAsync(bytes);
+        // 여기서 리팩 처리 가능
+        const newZipBlob = await zip.generateAsync({ type: "blob" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(newZipBlob);
+        a.download = "repacked.zip";
+        a.click();
+      })();
+    }
   }, []);
 
   const handleUpload = async (file: File) => {
@@ -37,28 +34,24 @@ export default function App() {
       };
       reader.readAsDataURL(file);
     });
-
     const url = `${location.origin}${location.pathname}#data=${encodeURIComponent(base64)}`;
     setGeneratedUrl(url);
   };
 
   return (
     <div className="container">
-      <h1 className="title">Resource Pack Director</h1>
+      <h1 className="title">Resource Pack Repacker</h1>
 
-      <div>
-        <label className="label">Upload ZIP</label>
-        <input
-          type="file"
-          accept=".zip"
-          className="fileInput"
-          onChange={(e) => {
-            if (e.target.files && e.target.files[0]) {
-              handleUpload(e.target.files[0]);
-            }
-          }}
-        />
-      </div>
+      <label className="fileButton" htmlFor="fileInput">Select ZIP File</label>
+      <input
+        id="fileInput"
+        type="file"
+        accept=".zip"
+        className="hiddenInput"
+        onChange={(e) => {
+          if (e.target.files && e.target.files[0]) handleUpload(e.target.files[0]);
+        }}
+      />
 
       {generatedUrl && (
         <div>
