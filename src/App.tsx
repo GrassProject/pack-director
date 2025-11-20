@@ -42,16 +42,19 @@ export default function App() {
     <div className="container">
       <h1 className="title">Resource Pack Repacker</h1>
 
-      <label className="fileButton" htmlFor="fileInput">Select ZIP File</label>
-      <input
-        id="fileInput"
-        type="file"
-        accept=".zip"
-        className="hiddenInput"
-        onChange={(e) => {
-          if (e.target.files && e.target.files[0]) handleUpload(e.target.files[0]);
-        }}
-      />
+      <div>
+        <label className="label">Upload ZIP</label>
+        <input
+          type="file"
+          accept=".zip"
+          className="fileInput"
+          onChange={(e) => {
+            if (e.target.files && e.target.files[0]) {
+              handleUpload(e.target.files[0]);
+            }
+          }}
+        />
+      </div>
 
       {generatedUrl && (
         <div>
