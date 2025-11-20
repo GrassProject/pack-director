@@ -40,7 +40,7 @@ body {
 }
 
 .fileInput {
-  width: 100%;
+  width: 95%;
   padding: 14px;
   border-radius: 12px;
   background: #111;
@@ -87,4 +87,32 @@ body {
 
 .copyBtn:hover {
   filter: brightness(1.1);
+}
+
+
+footer {
+  text-align: center;
+  color: #c9f1a4;
+  padding: 1.2rem 0;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  margin-top: 2rem;
+}
+
+
+.social-icons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 5%;
+    justify-content: center;
+}
+
+.social-icons a {
+    font-size: 1.5rem;
+    color: #fff;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #adf98e;
 }
