@@ -40,7 +40,7 @@ export default function App() {
 
   return (
     <div className="container">
-      <h1 className="title">Resource Pack Repacker</h1>
+      <h1 className="title">Pack Director</h1>
 
       <div>
         <label className="label">Upload ZIP</label>
